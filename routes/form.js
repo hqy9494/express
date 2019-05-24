@@ -2,6 +2,7 @@
 var express = require('express');
 var router = express.Router();
 var URL = require('url');
+var uuid = require('node-uuid');
 //加载mysql模块
 var mysql      = require('mysql');
 //创建连接
@@ -15,34 +16,87 @@ database : 'user'
 connection.connect();
 //SQL语句
 var  sql = 'SELECT * FROM users';
-var  addSql = 'INSERT INTO users(user,pass,tel) VALUES(?,?,?)';
-
-
-
+var  addSql = 'INSERT INTO users(id,user,pass,tel) VALUES(?,?,?,?)';
+var delSql = 'DELETE FROM users WHERE id=?'
 /* GET users listing. */
 router.get('/', function(req, res, next) {
     res.send('respond with a resource');
-    // res.send(req.query)
 });
 router.get('/add', function(req, res, next) {
     var query = URL.parse(req.url, true).query;
-    var addSqlParams = [query.user, query.pass, query.tel];
+    var addSqlParams = [uuid.v4().replace(/\-/g,''),query.user, query.pass, query.tel];
     connection.query(addSql,addSqlParams,function (err, result) {
         if(err){
          console.log('[INSERT ERROR] - ',err.message);
          return;
         }             
     });
-    res.send(query);
+    connection.query(sql,function (err, result) {
+        if(err){ 
+          console.log('[SELECT ERROR] - ',err.message);
+          return;
+        }
+        // console.log(params.id);
+        
+        //把搜索值输出
+       res.send(result);
+    });
+    // res.send(query);
 });
 router.get('/del', function(req, res, next) {
-    res.send('respond with a resource');
+    console.log(req.query.pass)
+    var deleteSqlParams = [req.query.id];
+    connection.query(delSql,deleteSqlParams,function (err, result) {
+        if(err){
+         console.log('[DELETE ERROR] - ',err.message);
+         res.send('Error')
+         return;
+        }
+        if(result){
+            connection.query(sql,function (err, result) {
+                if(err){ 
+                  console.log('[SELECT ERROR] - ',err.message);
+                  return;
+                }
+                // console.log(params.id);
+                
+                //把搜索值输出
+               res.send(result);
+            });
+        }            
+    });
 });
 router.get('/sel', function(req, res, next) {
-    res.send('respond with a resource');
+    // let keys = obj(req.query)
+    connection.query(sql,function (err, result) {
+        if(err){
+          console.log('[SELECT ERROR] - ',err.message);
+          return;
+        }
+        
+        //把搜索值输出
+        res.send(result);
+    });
 });
+
 router.post('/edit', function(req, res) {
-    var num = req.body.num;
-    res.send("你获取的post数据为:" + num);
+    let body = req.body;
+    let keys = Object.keys(body);
+    // let editSql = `UPDATE users SET xxxx WHERE id=${body.id}`
+    let str = "";
+    keys.map(e=>{
+        if(e != 'id'){
+            str += `${e}=${body[e]},`
+        }
+    })
+    str = str.slice(0,str.length-1);
+    editSql = `UPDATE users SET ${str} WHERE id=${body.id}`
+    // connection.query(editSql,(err, result)=>{
+    //     if(err){
+    //         console.log('[UPDATE ERROR] - ',err.message);
+    //         return;
+    //     }
+    // })
+    res.send(editSql)
 });
 module.exports = router;

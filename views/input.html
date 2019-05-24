@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    user:<input type="text" id="user"/>
+    pass:<input type="text" id="pass"/>
+    tel: <input type="number" id="tel"/>
+    <button id="add" onclick="addTable()">添加</button>
+    <table width="600" border="1">
+        <thead>
+            <tr>
+                <th>user</th>
+                <th>pass</th>
+                <th>tel</th>
+                <th>operate</th>
+            </tr>
+        </thead>
+        <tbody id="tb">
+
+        </tbody>
+
+    </table>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+    <script>
+        $.ajax({
+            url:'http://127.0.0.1:3000/form/sel',
+            type: 'get',
+            success: function (data ,textStatus, jqXHR){
+                render(data);
+            },
+            error:function (XMLHttpRequest, textStatus, errorThrown) {      
+                alert("请求失败！");
+            }
+        })
+
+        let addTable = () => {
+            if($('#user').val() ==="" || $('#pass').val() === "" || $('#tel').val() === ""){
+                alert('不允许为空！');
+                return
+            } 
+            $.ajax({
+                url: `http://127.0.0.1:3000/form/add?user=${$('#user').val()}&pass=${$('#pass').val()}&tel=${$('#tel').val()}`,
+                type: 'get',
+                success:(data)=>{
+                    render(data)
+                }
+            })
+        }
+
+       
+        let delTable = (id) => { 
+            // console.log($('#user').val(),$('#pass').val(),$('#tel').val())
+            $.ajax({
+                url: `http://127.0.0.1:3000/form/del?id=${id}`,
+                type: 'get',
+                success:(data)=>{
+                    render(data)
+                }
+            })
+        }
+
+        let editTable = (id) => {
+            if($('#user').val() ==="" || $('#pass').val() === "" || $('#tel').val() === ""){
+                alert('不允许为空！');
+                return
+            } 
+            $.ajax({
+                url: `http://127.0.0.1:3000/form/edit?user=${$('#user').val()}&pass=${$('#pass').val()}&tel=${$('#tel').val()}`,
+                type: 'post',
+                data:{
+                    id: id,
+                    user: $('#user').val(),
+                    pass: $('#pass').val(),
+                    tel: $('#tel').val(),
+                },
+                success:(data)=>{
+                    // render(data)
+                    console.log(data)
+                }
+            })
+        }
+
+        let render = (data) => {
+            $('#tb').html('');
+                if(data.length>0){
+                    data.map((e,i)=>{
+                        let tr = $('<tr>');
+                        let td1 = $('<td>');
+                        let td2 = $('<td>');
+                        let td3 = $('<td>');
+                        let td4 = $('<td>');
+                        let button1 = $('<button></button>');
+                        let button2 = $('<button></button>');
+                        td1.html(e.user);
+                        td2.html(e.pass);
+                        td3.html(e.tel);
+                        button1.html('更改');
+                        button2.html('删除');
+                        button1.on('click',()=>{editTable(e.id)});
+                        button2.on('click',()=>{delTable(e.id)});
+                        td4.append(button1,button2);
+                        tr.append(td1,td2,td3,td4);
+                        $('#tb').append(tr);
+                    })
+                }
+        }
+    </script>
+</body>
+</html>
