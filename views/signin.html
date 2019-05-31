@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <p>用户名：<input type="text" id="user"/></p>
+        <p>密码：&nbsp;&nbsp;&nbsp;<input type="text" id="pass"/></p>
+        <p>手机：&nbsp;&nbsp;&nbsp;<input type="text" id="tel"/></p>
+        <button  id="submit" onclick="handleSubmit()">登录</button>
+    </div>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+    <script>
+        let handleSubmit = (e) => {
+            if($('#user').val() == "" || $('#pass').val() == "" ||  $('#tel').val() == "" ){
+                alert('不允许为空！')
+            }else{
+                $.ajax({
+                    url: "http://127.0.0.1:3000/users/signup",
+                    type: "post",
+                    data: {
+                        user: $('#user').val(),
+                        pass: $('#pass').val(),
+                        tel: $('#tel').val()
+                    },
+                    headers:{
+                        Authorization: localStorage.getItem('token')
+                    },
+                    success: function (data ,textStatus, jqXHR){
+                        console.log(data)
+                        if(data.token) {
+                           localStorage.setItem('token',data.token); 
+                           alert("注册成功！")
+                        }else{
+                            alert("该用户名已被注册！");
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {      
+                        alert("请求失败！");
+                    }
+                })
+            }
+            
+        }
+    </script>
+</body>
+</html>

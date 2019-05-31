@@ -44,7 +44,7 @@ router.get('/add', function(req, res, next) {
     // res.send(query);
 });
 router.get('/del', function(req, res, next) {
-    console.log(req.query.pass)
+    // console.log(req.query.id)
     var deleteSqlParams = [req.query.id];
     connection.query(delSql,deleteSqlParams,function (err, result) {
         if(err){
@@ -86,17 +86,55 @@ router.post('/edit', function(req, res) {
     let str = "";
     keys.map(e=>{
         if(e != 'id'){
-            str += `${e}=${body[e]},`
+            str += `${e}='${body[e]}',`
         }
     })
     str = str.slice(0,str.length-1);
-    editSql = `UPDATE users SET ${str} WHERE id=${body.id}`
-    // connection.query(editSql,(err, result)=>{
-    //     if(err){
-    //         console.log('[UPDATE ERROR] - ',err.message);
-    //         return;
-    //     }
-    // })
-    res.send(editSql)
+    let editSql = `UPDATE users SET ${str} WHERE id='${body.id}'`
+    // editSql = `UPDATE users SET user=6666,pass=6666,tel=6666 WHERE user=1112233`
+    console.log(editSql)
+    connection.query(editSql,(err, result)=>{
+        if(err){
+            console.log('[UPDATE ERROR] - ',err.message);
+            return;
+        }
+        if(result){
+            connection.query(sql,function (err, result) {
+                if(err){ 
+                  console.log('[SELECT ERROR] - ',err.message);
+                  return;
+                }
+                // console.log(params.id);
+                
+                //把搜索值输出
+               res.send(result);
+            });
+        }   
+        // res.send(editSql) 
+    })
+    // res.send(editSql)
+});
+
+router.post('/find', function(req, res) {
+    let body = req.body;
+    let keys = Object.keys(body);
+    // let editSql = `UPDATE users SET xxxx WHERE id=${body.id}`
+    let str = "";
+    keys.map(e=>{
+        if(e != 'id'){
+            str += `${e}='${body[e]}' AND `
+        }
+    })
+    str = str.slice(0,str.length-5);
+    let findSql = `SELECT * FROM users WHERE ${str}`
+    // editSql = `UPDATE users SET user=6666,pass=6666,tel=6666 WHERE user=1112233`
+    console.log(findSql)
+    connection.query(findSql,(err, result)=>{
+        if(err){
+            console.log('[UPDATE ERROR] - ',err.message);
+            return;
+        }
+        res.send(result) 
+    })
 });
 module.exports = router;

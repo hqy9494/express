@@ -9,8 +9,10 @@
 <body>
     user:<input type="text" id="user"/>
     pass:<input type="text" id="pass"/>
-    tel: <input type="number" id="tel"/>
+    tel: <input type="text" id="tel"/>
     <button id="add" onclick="addTable()">添加</button>
+    <button id="find" onclick="findTable()">查询</button>
+    <button id="reflash" onclick="reflashTable()">重置</button>
     <table width="600" border="1">
         <thead>
             <tr>
@@ -27,16 +29,23 @@
     </table>
     <script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
     <script>
-        $.ajax({
-            url:'http://127.0.0.1:3000/form/sel',
-            type: 'get',
-            success: function (data ,textStatus, jqXHR){
-                render(data);
-            },
-            error:function (XMLHttpRequest, textStatus, errorThrown) {      
-                alert("请求失败！");
-            }
-        })
+
+        let reflashTable = () => {
+             $.ajax({
+                url:'http://127.0.0.1:3000/form/sel',
+                type: 'get',
+                headers:{
+                    Authorization: localStorage.getItem('token')
+                },
+                success: function (data ,textStatus, jqXHR){
+                    render(data);
+                },
+                error:function (XMLHttpRequest, textStatus, errorThrown) {      
+                    alert("请求失败！");
+                }
+            })
+        }
+       
 
         let addTable = () => {
             if($('#user').val() ==="" || $('#pass').val() === "" || $('#tel').val() === ""){
@@ -45,7 +54,10 @@
             } 
             $.ajax({
                 url: `http://127.0.0.1:3000/form/add?user=${$('#user').val()}&pass=${$('#pass').val()}&tel=${$('#tel').val()}`,
-                type: 'get',
+                type: 'get',               
+                headers:{
+                    Authorization: localStorage.getItem('token')
+                },
                 success:(data)=>{
                     render(data)
                 }
@@ -58,6 +70,9 @@
             $.ajax({
                 url: `http://127.0.0.1:3000/form/del?id=${id}`,
                 type: 'get',
+                headers:{
+                    Authorization: localStorage.getItem('token')
+                },
                 success:(data)=>{
                     render(data)
                 }
@@ -70,7 +85,7 @@
                 return
             } 
             $.ajax({
-                url: `http://127.0.0.1:3000/form/edit?user=${$('#user').val()}&pass=${$('#pass').val()}&tel=${$('#tel').val()}`,
+                url: `http://127.0.0.1:3000/form/edit`,
                 type: 'post',
                 data:{
                     id: id,
@@ -78,8 +93,35 @@
                     pass: $('#pass').val(),
                     tel: $('#tel').val(),
                 },
+                headers:{
+                    Authorization: localStorage.getItem('token')
+                },
                 success:(data)=>{
-                    // render(data)
+                    render(data)
+                    console.log(data)
+                }
+            })
+        }
+
+        let findTable = (id) => {
+            if($('#user').val() ==="" || $('#pass').val() === "" || $('#tel').val() === ""){
+                alert('不允许为空！');
+                return
+            } 
+            let data = {};
+            if($('#user').val() !== ''){ data.user = $('#user').val() }
+            if($('#pass').val() !== ''){ data.pass = $('#pass').val() }
+            if($('#tel').val() !== ''){ data.tel = $('#tel').val() }
+            console.log(data)
+            $.ajax({
+                url: `http://127.0.0.1:3000/form/find`,
+                type: 'post',
+                data,
+                headers:{
+                    Authorization: localStorage.getItem('token')
+                },
+                success:(data)=>{
+                    render(data)
                     console.log(data)
                 }
             })
@@ -87,28 +129,29 @@
 
         let render = (data) => {
             $('#tb').html('');
-                if(data.length>0){
-                    data.map((e,i)=>{
-                        let tr = $('<tr>');
-                        let td1 = $('<td>');
-                        let td2 = $('<td>');
-                        let td3 = $('<td>');
-                        let td4 = $('<td>');
-                        let button1 = $('<button></button>');
-                        let button2 = $('<button></button>');
-                        td1.html(e.user);
-                        td2.html(e.pass);
-                        td3.html(e.tel);
-                        button1.html('更改');
-                        button2.html('删除');
-                        button1.on('click',()=>{editTable(e.id)});
-                        button2.on('click',()=>{delTable(e.id)});
-                        td4.append(button1,button2);
-                        tr.append(td1,td2,td3,td4);
-                        $('#tb').append(tr);
-                    })
-                }
+            if(data.length>0){
+                data.map((e,i)=>{
+                    let tr = $('<tr>');
+                    let td1 = $('<td>');
+                    let td2 = $('<td>');
+                    let td3 = $('<td>');
+                    let td4 = $('<td>');
+                    let button1 = $('<button></button>');
+                    let button2 = $('<button></button>');
+                    td1.html(e.user);
+                    td2.html(e.pass);
+                    td3.html(e.tel);
+                    button1.html('更改');
+                    button2.html('删除');
+                    button1.on('click',()=>{editTable(e.id)});
+                    button2.on('click',()=>{delTable(e.id)});
+                    td4.append(button1,button2);
+                    tr.append(td1,td2,td3,td4);
+                    $('#tb').append(tr);
+                })
+            }
         }
+        reflashTable();
     </script>
 </body>
 </html>
