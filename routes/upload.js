@@ -6,10 +6,7 @@ const router = express.Router();
 
 
  var fs = require('fs');
-  var express = require('express');
   var multer  = require('multer');
-  
-  var router = express.Router();
   var upload = multer({dest: 'upload_tmp/'});
   
   router.post('/image', upload.any(), function(req, res, next) {

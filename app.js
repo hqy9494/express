@@ -1,16 +1,16 @@
 
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cors = require('cors')
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var bodyParser = require('body-parser');
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var formRouter = require('./routes/form');
-// var uploadRouter = require('./routes/upload');
-var app = express();
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cors = require('cors')
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const bodyParser = require('body-parser');
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+const formRouter = require('./routes/form');
+const uploadRouter = require('./routes/upload');
+const app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -29,7 +29,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/form', formRouter);
-// app.use('/upload',uploadRouter)
+app.use('/upload',uploadRouter)
 
 //需要use的(post)
 app.use(bodyParser.json()); // for parsing application/json

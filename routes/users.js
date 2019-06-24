@@ -78,7 +78,7 @@ router.post('/signup',(req,res,next) =>{
                   return;
                 }
                 if(result){
-                    res.json({
+                    res.send({
                     success: true,
                     message: '请使用您的授权码',
                     token: token
@@ -93,7 +93,7 @@ router.post('/signup',(req,res,next) =>{
 })
 
 
-router.post('/login',(req,res,next) =>{
+router.post('/login',(req,res,next) =>{  
   const body = req.body;
   console.log(req.body);
   // res.send(body.user);
