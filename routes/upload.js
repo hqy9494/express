@@ -1,32 +1,30 @@
 
 const express = require('express');
 const router = express.Router();
-// const URL = require('url');
-// const path = require('path');
+ const fs = require('fs');
+ const multer  = require('multer');
 
 
- var fs = require('fs');
-  var multer  = require('multer');
-  var upload = multer({dest: 'upload_tmp/'});
-  
-  router.post('/image', upload.any(), function(req, res, next) {
-      console.log(req.files[0]);  // 上传的文件信息
- 
-     let des_file = "./upload/" + req.files[0].originalname;
-     fs.readFile( req.files[0].path, function (err, data) {
-         fs.writeFile(des_file, data, function (err) {
-             if( err ){
-                 console.log( err );
-             }else{
-                 response = {
-                     message:'File uploaded successfully',
-                     filename:req.files[0].originalname
-                 };
-                 console.log( response );
-                 res.end( JSON.stringify( response ) );
-             }
-         });
-     });
- });
+
+
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'upload_tmp/');
+    },
+    filename: function (req, file, cb) {
+      cb(null, `${file.originalname}`);
+    }
+  })
+
+  var upload = multer({ storage: storage })
+
+
+  router.post('/image', upload.any(), function(req, res, next){
+    res.end(`http://127.0.0.1:3001`)
+})
+
+    router.get('/download',function(req, res, next){
+        res.end(`http://127.0.0.1:3001`)
+    })
  
  module.exports = router;
